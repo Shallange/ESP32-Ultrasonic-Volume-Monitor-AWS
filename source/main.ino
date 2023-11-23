@@ -1,5 +1,5 @@
 
-  #include "secrets.h" // Include the secrets file for WiFi and AWS credentials
+  #include "credentials.h" // Include the secrets file for WiFi and AWS credentials
   #include <WiFiClientSecure.h> // Secure WiFi client for HTTPS connections
   #include <MQTTClient.h> // MQTT client for AWS IoT
   #include <ArduinoJson.h> // JSON library for data serialization
@@ -109,7 +109,7 @@
     doc["device_id"] = device_id; 
     doc["distance"] = distance;
     doc["liters"] = liters;
-    doc["type"] = calculationType; 
+    doc["containerType"] = calculationType; 
     char jsonBuffer[512];
     serializeJson(doc, jsonBuffer);
     mqtt_client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
