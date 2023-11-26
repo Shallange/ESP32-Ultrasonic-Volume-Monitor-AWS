@@ -4,7 +4,6 @@
   #include <MQTTClient.h> // MQTT client for AWS IoT
   #include <ArduinoJson.h> // JSON library for data serialization
   #include "WiFi.h" // WiFi library for ESP32
-
   String device_id;
   // HC-SR04 Pin definitions
   #define triggerPin 5 // GPIO pin for the HC-SR04 trigger
@@ -13,18 +12,13 @@
   #define cuboid_width 50
   #define cuboid_length 40
   #define cuboid_height 300
-
   #define cylinder_radius 45
   #define cylinder_height 100
-
   int calculationMode = 0; // 0 for cuboid, 1 for cylinder
   String calculationType; // Add this line
-
-
   // Global variables for distance and volume measurement
   float distance, liters;
   // Function to measure distance using HC-SR04
-
   float measureDistance() {
     digitalWrite(triggerPin, LOW);
     delayMicroseconds(2);
@@ -35,7 +29,6 @@
     float distanceCm = duration * 0.034 / 2; // Calculate distance (in cm)
     return distanceCm;
   }
-
   // Function for calculating volume of a cuboid
   float calculateCuboidVolume(float distance) {
     float height = cuboid_height - distance;
@@ -48,7 +41,6 @@
     float volume_cm3 = M_PI * pow(cylinder_radius, 2) * height;
     return volume_cm3 / 1000.0; // Convert from cubic cm to liters
   }
-
   // MQTT topics for the device
   #define AWS_IOT_PUBLISH_TOPIC (device_id + "/pub").c_str()
   #define AWS_IOT_SUBSCRIBE_TOPIC (device_id + "/sub").c_str()
@@ -90,7 +82,7 @@
     while (!mqtt_client.connected()) {
       Serial.print("Attempting MQTT connection...");
       // Attempt to connect
-      if (mqtt_client.connect(THINGNAME)) {
+      if(mqtt_client.connect(THINGNAME)) {
         Serial.println("connected");
         // Resubscribe to the topic after successful connection
         mqtt_client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
@@ -115,13 +107,11 @@
     mqtt_client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
     Serial.println("Message sent to AWS IoT");
   }
-
   // Handler for incoming MQTT messages
   void incomingMessageHandler(String &topic, String &payload) {
     Serial.println("Message received:");
     Serial.println("Topic: " + topic);
     Serial.println("Payload: " + payload);
-
     StaticJsonDocument<200> doc;
     deserializeJson(doc, payload);
     if (doc.containsKey("mode")) {
@@ -130,8 +120,6 @@
       Serial.println(calculationMode == 0 ? "Cuboid" : "Cylinder");
     }
   }
-
-
   // Setup function - runs once at startup
   void setup() {
     Serial.begin(9600);
@@ -143,7 +131,6 @@
     pinMode(echoPin, INPUT);
     connectAWS();
   }
-
   // Main loop function - runs repeatedly
   void loop() {
     if (!mqtt_client.connected()) {
