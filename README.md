@@ -16,7 +16,7 @@ This project develops an IoT-based volume measurement system using ESP32, HC-SR0
 
 ## Setup and Configuration
 ### 1. WiFi and AWS Configuration
-Update `secrets.h` with your WiFi and AWS credentials.
+Update `credentials.h` with your WiFi and AWS credentials.
 
 ### 2. Hardware Connections
 Connect the HC-SR04 sensor's trigger pin to GPIO 5 and echo pin to GPIO 4 of the ESP32.

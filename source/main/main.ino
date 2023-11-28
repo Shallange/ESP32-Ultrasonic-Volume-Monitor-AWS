@@ -5,6 +5,7 @@
   #include <ArduinoJson.h> // JSON library for data serialization
   #include "WiFi.h" // WiFi library for ESP32
   String device_id;
+  
   // HC-SR04 Pin definitions
   #define triggerPin 5 // GPIO pin for the HC-SR04 trigger
   #define echoPin 4    // GPIO pin for the HC-SR04 echo
@@ -77,24 +78,40 @@
     Serial.println("Subscribed to AWS IoT");
   }
   // Function to reconnect to MQTT
-  void reconnect() {
-    // Loop until we're reconnected
-    while (!mqtt_client.connected()) {
+void reconnect() {
+  unsigned long lastAttemptTime = 0;
+  const long retryInterval = 5000; // Retry every 5 seconds
+  int attemptCount = 0;
+  const int maxAttempt = 10; // Maximum number of attempts
+
+  while (!mqtt_client.connected() && attemptCount < maxAttempt) {
+    if (millis() - lastAttemptTime > retryInterval) {
+      lastAttemptTime = millis();
+      attemptCount++;
+
+      if (WiFi.status() != WL_CONNECTED) {
+        // Reconnect WiFi if needed
+        Serial.println("Reconnecting to WiFi...");
+        WiFi.reconnect();
+      }
+
       Serial.print("Attempting MQTT connection...");
       // Attempt to connect
-      if(mqtt_client.connect(THINGNAME)) {
+      if (mqtt_client.connect(THINGNAME)) {
         Serial.println("connected");
         // Resubscribe to the topic after successful connection
         mqtt_client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
       } else {
         Serial.print("failed, rc=");
-        Serial.print(mqtt_client.connected());
+        // Replace with a method that gives actual error code if available
+        Serial.print(mqtt_client.connected()); 
         Serial.println(" try again in 5 seconds");
-        // Wait 5 seconds before retrying
-        delay(5000);
       }
     }
+    delay(10); // Small delay to prevent a totally 'tight' loop
   }
+}
+
   // Function to publish messages to AWS IoT
   void publishMessage() {
     StaticJsonDocument<200> doc;
@@ -154,5 +171,5 @@
       Serial.println("Distance out of range");
     }
     mqtt_client.loop();
-    delay(15000); // Delay for 30 seconds
+    delay(10000); 
   }
