@@ -1,8 +1,9 @@
 # IoT Volume Measurement System
 
 ## Overview
-This project develops an IoT-based volume measurement system using ESP32, HC-SR04 ultrasonic sensor, and AWS IoT. It calculates and transmits the volume data of cuboid or cylinder containers based on the distance measured by the HC-SR04 sensor.
-
+This project develops an IoT-based volume measurement system specifically for cuboid containers using ESP32, HC-SR04 ultrasonic sensor, and AWS IoT. It calculates and transmits the volume data of cuboid containers based on the distance measured by the HC-SR04 sensor.
+## Cloud Setup Overview
+![AWS Cloud Setup](documentation/images/Aws-cloud-map.jpg)
 ## Hardware Requirements
 - ESP32 Development Board
 - HC-SR04 Ultrasonic Sensor
@@ -31,8 +32,4 @@ Open the code in Arduino IDE, select ESP32 as the board, and choose the correct 
 Compile and upload the code to the ESP32 board.
 
 ## Operation
-The system operates in two modes:
-- **Cuboid Mode:** For cuboid container volume calculation.
-- **Cylinder Mode:** For cylindrical container volume calculation.
-
-The device measures the distance to the liquid surface and calculates the volume.
+The device measures the distance to the liquid surface in a cuboid container and calculates the volume based on these measurements.
