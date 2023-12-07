@@ -10,12 +10,13 @@
 8. [Automated Notifications with Discord](#automated-notifications-with-discord)
 9. [Device Shadow](#device-shadow)
 10. [AWS IoT Core](#aws-iot-core)
-11. [Scalability in IoT](#scalability-in-iot)
-12. [Security Considerations in Lambda Functions and Device Configuration](#security-considerations-in-lambda-functions-and-device-configuration)
-13. [Introduction to Amazon Timestream and S3](#introduction-to-amazon-timestream-and-s3)
-14. [Storage and Pricing Considerations](#storage-and-pricing-considerations)
-15. [Principle of Least Privilege](#principle-of-least-privilege)
-16. [HC-SR04 Ultrasonic Distance Sensor](#hc-sr04-ultrasonic-distance-sensor)
+11. [MQTT Secure Handshake in IoT Communications](#mqtt-secure-handshake-in-iot-communications)
+12. [Scalability in IoT](#scalability-in-iot)
+13. [Security Considerations in Lambda Functions and Device Configuration](#security-considerations-in-lambda-functions-and-device-configuration)
+14. [Introduction to Amazon Timestream and S3](#introduction-to-amazon-timestream-and-s3)
+15. [Storage and Pricing Considerations](#storage-and-pricing-considerations)
+16. [Principle of Least Privilege](#principle-of-least-privilege)
+17. [HC-SR04 Ultrasonic Distance Sensor](#hc-sr04-ultrasonic-distance-sensor)
 
 
 ## Introduction
@@ -94,9 +95,18 @@ AWS IoT Core is a key component in building smart and secure IoT solutions. It s
 ## Scalability in IoT
 ### Scalable Infrastructure with AWS IoT Core
 AWS IoT Core's ability to manage a vast number of devices and messages makes it an ideal platform for scalable IoT solutions. Whether scaling up for growing needs or scaling down during quieter periods, AWS IoT Core adapts effortlessly, ensuring seamless operation regardless of the scale.
+## MQTT Secure Handshake in IoT Communications
+
+In the IoT Volume Measurement System, the MQTT Secure Handshake is vital for ensuring secure communication between the IoT devices and AWS IoT Core. This process involves several key steps:
+
+Firstly, TLS (Transport Layer Security) encryption is employed to secure the data transmitted to AWS IoT Core. This encryption guarantees the confidentiality and integrity of messages exchanged between devices and the cloud.
+
+For authentication purposes, each device uses a unique certificate provided by AWS IoT Core. This ensures that only authorized devices can establish a connection. Similarly, AWS IoT Core also authenticates itself to the device, using its own certificate. This mutual authentication process is crucial for fortifying the system against unauthorized access and potential man-in-the-middle attacks, thereby maintaining a high level of security within the communication channels of the IoT system.
+
 
 ### Amazon Timestream for Scalable Data Management
 Amazon Timestream's managed time-series database service is optimized for fast analysis of time-series data, efficiently handling scalability and maintenance. This allows for the easy management of large datasets and quick querying, perfect for IoT applications and real-time analytics.
+
 ## Security Considerations in Lambda Functions and Device Configuration
 ### Secrets Management for Lambda Functions
 For Lambda functions, like those used to integrate with services such as Discord, sensitive information such as webhook URLs should be managed securely. Currently, these details are directly embedded in the Lambda code. A more secure approach involves using services like AWS Secrets Manager and AWS Key Management Service (KMS). These services enable secure storage and retrieval of secrets, reducing the risk of exposing sensitive information in the code.
@@ -152,9 +162,16 @@ The HC-SR04 is a distance measuring sensor that uses ultrasound to measure the d
 - **Operating Temperature**: -15°C to 70°C
 - **Ultrasonic Frequency**: 40Khz
 
-![Discord Chat](documentation/images/TrigEcho.png)
+![HC-SR04 Sensor Diagram](documentation/images/TrigEcho.png)
 
 *A short pulse of at least 10 microseconds (uS) needs to be sent to the input (Trigger pin), and the sensor will then emit 8 pulses.*
+
+### Flexibility in Measurement Settings
+The system is designed for versatility in handling various container sizes. The HC-SR04 sensor's measurements can be dynamically adjusted according to different container dimensions.
+
+- **Adjusting Measurements**: Through the Device Shadow feature in AWS IoT, the dimensions of containers (height, width, length) can be remotely updated, enhancing the system's adaptability.
+- **Reference to Device Shadow**: For detailed instructions on modifying these settings, refer to the [Device Shadow](#device-shadow) section.
+
 ### Calculating Distance Using Ultrasound
 The speed of sound in dry air at 20°C is 343 m/s. This can be converted to the time it takes for sound to travel a certain distance. Specifically, it takes 29,154 microseconds for sound to travel 1 cm, calculated from the given speed:
 - 343 m/s = 0.0343 centimeters per microsecond.
@@ -163,19 +180,8 @@ When using the HC-SR04 ultrasonic sensor, we measure the time it takes for an ul
 1. **Distance** = (time it takes for sound to return / 2) x speed of sound
 2. **Distance** = (time it takes for sound to return / 2) / 29,154
 
-In my code, I have chosen to use method 1 to calculate the distance.
-
 ### Calculations for Container Volume
-To calculate the number of liters in a container, I use the HC-SR04 ultrasonic sensor to measure the distance between itself and the water surface in the container by emitting ultrasound and measuring the time it takes for the sound to be reflected back to the sensor.
-
-The sensor will measure the distance from the water surface to a point above the container, which for safety and margin will be placed 5 cm above the container's maximum height. These 5 centimeters will need to be included in the calculation and will be done through an if statement:
-
-- **If the distance is greater than 5**, use this formula:
-  - `height = total height - (distance from sensor to water surface - 5)`.
-- **If the distance is less than 5**, use this formula:
-  - `height = total height`.
-
-The calculated height will then be used in the formula to calculate the volume of a rectangular prism.
+The calculated distance is used to determine the volume of liquid in a container. Adjustments to container dimensions through the Device Shadow are factored into these calculations for accurate volume measurement.
 
 **Note**: The total height of the container must be known in advance to determine the water height.
 
@@ -185,4 +191,5 @@ The calculated height will then be used in the formula to calculate the volume o
 - **Length**: 40 cm
 
 The remaining dimensions of various containers have also been predetermined as they are needed in the code.
+
 [Back to the Top](#table-of-contents)
